@@ -18,4 +18,9 @@ router.get('/', async () => {
 
 router.get('sensors/:id', [SensorsController, 'getSensor'])
 router.get('sensors', [SensorsController, 'getSensor'])
+router.post('notifications/:id', [SensorsController, 'readNotification'])
+router.post('resetnotifications', [SensorsController, 'resetNotifications'])
+router.get('notifications', [SensorsController, 'getNotifications'])
+
 router.post('createSensor', [SensorsController, 'createSensor'])
+router.post('pollSensors', [SensorsController, 'pollSensors'])

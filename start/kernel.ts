@@ -10,6 +10,7 @@
 
 import router from '@adonisjs/core/services/router'
 import server from '@adonisjs/core/services/server'
+import SchedulerService from '#services/SchedulerService'
 
 /**
  * The error handler is used to convert an exception
@@ -27,7 +28,6 @@ server.use([
   () => import('#middleware/force_json_response_middleware'),
   () => import('@adonisjs/cors/cors_middleware'),
 ])
-
 /**
  * The router middleware stack runs middleware on all the HTTP
  * requests with a registered route.

@@ -14,6 +14,7 @@ export default class extends BaseSchema {
       table.float('humidity').nullable() // Humidity, float type
       table.float('ph').nullable() // pH level, float type
       table.text('metadata').nullable() // Additional metadata as text
+      table.string('hostname').nullable();
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

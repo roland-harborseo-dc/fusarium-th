@@ -26,6 +26,9 @@ export default class Sensor extends BaseModel {
   @column()
   declare metadata: string
 
+  @column()
+  declare hostname: string
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

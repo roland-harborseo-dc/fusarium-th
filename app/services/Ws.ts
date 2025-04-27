@@ -8,7 +8,9 @@ class Ws {
     /**
      * Ignore multiple calls to the boot method
      */
+    console.log("ws server")
     if (this.booted) {
+      console.log("WS Started")
       return
     }
 

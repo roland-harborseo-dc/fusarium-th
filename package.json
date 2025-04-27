@@ -57,10 +57,13 @@
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.2.0",
     "@tidaly/mqtt": "^0.1.0",
+    "@verful/scheduler": "^1.6.0",
     "@vinejs/vine": "^2.1.0",
+    "axios": "^1.7.9",
     "luxon": "^3.5.0",
     "moment": "^2.30.1",
     "mysql2": "^3.11.3",
+    "node-schedule": "^2.1.1",
     "reflect-metadata": "^0.2.2",
     "socket.io": "^4.8.0"
   },

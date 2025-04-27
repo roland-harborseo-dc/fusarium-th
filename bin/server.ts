@@ -11,6 +11,7 @@
 
 import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
+import SchedulerService from '#services/SchedulerService'
 
 /**
  * URL to the application root. AdonisJS need it to resolve
@@ -36,6 +37,10 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
     })
     app.listen('SIGTERM', () => app.terminate())
     app.listenIf(app.managedByPm2, 'SIGINT', () => app.terminate())
+    app.ready(async () => {
+      await SchedulerService.scheduleJobs();
+      await import('#start/ws')
+    })
   })
   .httpServer()
   .start()

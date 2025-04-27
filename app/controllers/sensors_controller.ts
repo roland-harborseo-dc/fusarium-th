@@ -12,4 +12,20 @@ export default class SensorsController {
     async createSensor(){
         return this.sensorService.createSensor()
     }
+
+    async pollSensors(){
+        return this.sensorService.pollSensors()
+    }
+
+    async getNotifications(){
+        return this.sensorService.getNotifications()
+    }
+
+    async resetNotifications(){
+        return this.sensorService.resetNotifications()
+    }
+
+    async readNotification(){
+        return this.sensorService.readNotification()
+    }
 }

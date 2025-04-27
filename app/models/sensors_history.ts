@@ -7,6 +7,9 @@ export default class SensorsHistory extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
+  @column()
+  declare sensorId: number
+
   @belongsTo(()=> Sensor)
   declare sensor: BelongsTo<typeof Sensor>
 
