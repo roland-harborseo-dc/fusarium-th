@@ -10,7 +10,9 @@ export default class NotificationHistory extends BaseModel {
     @column()
     declare sensorHistoryId: number
 
-    @belongsTo(() => SensorsHistory)
+    @belongsTo(() => SensorsHistory, {
+        foreignKey: 'sensorHistoryId', // 👈 this is key
+    })
     declare sensorHistory: BelongsTo<typeof SensorsHistory>
 
   @column.dateTime({ autoCreate: true })

@@ -149,9 +149,10 @@ export default class SensorService {
     const {request, response} = this.ctx
     const {id} = request.body()
 
-    let notifObject = await NotificationHistory.all()
+    let notifObject = await NotificationHistory.query().preload('sensorHistory')
+    let countNotifs = await NotificationHistory.findManyBy("read", false)
 
-    return response.status(200).json(notifObject)
+    return response.status(200).json({notifications: notifObject, unreadCount: countNotifs?.length})
   }
 
   async resetNotifications() {
@@ -185,6 +186,8 @@ export default class SensorService {
           
           notif.sensorHistoryId = item.id
           notif.read = false;
+          notif.updatedAt = item.updatedAt;
+          notif.createdAt = item.createdAt;
           await notif.save()
         }
 
@@ -198,7 +201,7 @@ export default class SensorService {
 
   async readNotification(){
     const {request, response} = this.ctx
-    const {id} = request.body()
+    const {id} = request.params()
 
     let notifObject = await NotificationHistory.find(id)
     if(notifObject){
