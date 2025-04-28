@@ -10,6 +10,7 @@ export default class extends BaseSchema {
       table.integer('sensor_history_id').unsigned().references('id').inTable('sensors_histories')
       table.string('message')
       table.boolean('read')
+      table.specificType('body', 'LONGTEXT' )
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

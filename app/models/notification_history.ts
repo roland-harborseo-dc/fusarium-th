@@ -27,4 +27,7 @@ export default class NotificationHistory extends BaseModel {
   @column()
   declare message: String
 
+  @column()
+  declare body: String
+
 }

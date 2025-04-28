@@ -48,32 +48,7 @@ export default class SensorService {
               sItem.ph = PH
 
               await sItem.save()
-
-              let temperature = Number.parseFloat(s_temp + "")
-              let ph = Number.parseFloat(PH + "")
-              let humidity = Number.parseFloat(dht_hum + "")
-              let recordNotif = false;
-              let notif = new NotificationHistory()
-              notif.message = "";
-                //@ts-ignore
-                notif.sensorHistory = item.id
-      
-              if(temperature > 25 && temperature < 30){
-                recordNotif = true;
-                notif.message += `Temperature is higher than 25'C/30'C (reading ${temperature}'C. ) Fusarium wilt may be in development. ` 
-              }
-              if (ph > 3.5 && ph < 7) {
-                recordNotif = true;
-                notif.message += `PH levels are within 3.5 ~ 7 (reading ${ph}) Fusarium wilt may be in development. ` 
-              }
-              if (humidity > 50){
-                recordNotif = true;
-                notif.message += `Relative Humidity is high. (reading ${humidity}% ) Fusarium wilt may be in development. ` 
-              }
-      
-              if(recordNotif){
-                await notif.save()
-              }
+              await this.interpretAndSaveNotification(sItemHistory)
             }
           }  
   
@@ -156,48 +131,264 @@ export default class SensorService {
   }
 
   async resetNotifications() {
-    const {request, response} = this.ctx
-    let sensorHistory = await SensorsHistory.all()
-
-    if(sensorHistory){
-      await Promise.all(sensorHistory.map(async (item, index) => {
-        let temperature = Number.parseFloat(item.temperature + "")
-        let ph = Number.parseFloat(item.ph + "")
-        let humidity = Number.parseFloat(item.humidity + "")
-        let recordNotif = false;
-        let notif = new NotificationHistory()
-        notif.message = "";
-          
-
-        if(temperature > 25 && temperature < 30){
-          recordNotif = true;
-          notif.message += `Temperature is higher than 25'C/30'C (reading ${temperature}'C. ) Fusarium wilt may be in development. ` 
-        }
-        if (ph > 3.5 && ph < 7) {
-          recordNotif = true;
-          notif.message += `PH levels are within 3.5 ~ 7 (reading ${ph}) Fusarium wilt may be in development. ` 
-        }
-        if (humidity > 50){
-          recordNotif = true;
-          notif.message += `Relative Humidity is high. (reading ${humidity}% ) Fusarium wilt may be in development. ` 
-        }
-
-        if(recordNotif){
-          
-          notif.sensorHistoryId = item.id
-          notif.read = false;
-          notif.updatedAt = item.updatedAt;
-          notif.createdAt = item.createdAt;
-          await notif.save()
-        }
-
-        return true
-      }))
-
-      return response.status(200).json({success:true})
-
+    const { response } = this.ctx
+    const sensorHistories = await SensorsHistory.all()
+  
+    if (sensorHistories.length) {
+      await Promise.all(sensorHistories.map(history => this.interpretAndSaveNotification(history)))
+  
+      return response.status(200).json({ success: true })
     }
+  
+    return response.status(400).json({ success: false, message: "No sensor history found." })
   }
+
+  private async interpretAndSaveNotification(sensorHistory: SensorsHistory) {
+    const temperature = Number.parseFloat(sensorHistory.temperature + "")
+    const ph = Number.parseFloat(sensorHistory.ph + "")
+    const humidity = Number.parseFloat(sensorHistory.humidity + "")
+    
+    const notifications: NotificationHistory[] = []
+  
+    // High humidity
+    if (humidity > 50) {
+      const notif = new NotificationHistory()
+      notif.message = `High Humidity Detected (Reading: ${humidity}%)`
+      notif.body = `
+      Your soil environment is experiencing high humidity levels which increases the risk of Fusarium wilt development.
+  
+      To manage this situation:
+      - Improve drainage to prevent waterlogging
+      - Increase ventilation in the area to reduce humidity
+  
+      Maintain balanced humidity to protect your plants!
+      `
+      notif.sensorHistoryId = sensorHistory.id
+      notif.read = false
+      notif.updatedAt = sensorHistory.updatedAt
+      notif.createdAt = sensorHistory.createdAt
+      notifications.push(notif)
+    }
+  
+    // Low humidity (example, <10%)
+    if (humidity < 10) {
+      const notif = new NotificationHistory()
+      notif.message = `Low Humidity Detected (Reading: ${humidity}%)`
+      notif.body = `
+      Your soil environment has very low humidity, which may stress plants.
+  
+      To manage this situation:
+      - Increase watering frequency
+      - Apply mulch to retain soil moisture
+  
+      Help your plants thrive by maintaining optimal humidity!
+      `
+      notif.sensorHistoryId = sensorHistory.id
+      notif.read = false
+      notif.updatedAt = sensorHistory.updatedAt
+      notif.createdAt = sensorHistory.createdAt
+      notifications.push(notif)
+    }
+  
+    // High temperature
+    if (temperature > 28) {
+      const notif = new NotificationHistory()
+      notif.message = `High Temperature Detected (Reading: ${temperature}°C)`
+      notif.body = `
+      Your soil temperature is currently above 28°C. This temperature supports Fusarium wilt development.
+  
+      To manage this situation:
+      - Improve ventilation in the area
+      - Apply mulching to stabilize soil conditions
+      - Provide shade to reduce soil temperature
+  
+      Take action to prevent pathogen growth!
+      `
+      notif.sensorHistoryId = sensorHistory.id
+      notif.read = false
+      notif.updatedAt = sensorHistory.updatedAt
+      notif.createdAt = sensorHistory.createdAt
+      notifications.push(notif)
+    }
+  
+    // Low temperature
+    if (temperature < 17) {
+      const notif = new NotificationHistory()
+      notif.message = `Low Temperature Detected (Reading: ${temperature}°C)`
+      notif.body = `
+      Your soil temperature is currently below 17°C which inhibits Fusarium wilt but may impact plant health.
+  
+      To manage this situation:
+      - Increase sunlight exposure when possible
+      - Apply warm mulch to stabilize soil temperature
+  
+      Keep your soil within the optimal range for plant growth!
+      `
+      notif.sensorHistoryId = sensorHistory.id
+      notif.read = false
+      notif.updatedAt = sensorHistory.updatedAt
+      notif.createdAt = sensorHistory.createdAt
+      notifications.push(notif)
+    }
+  
+    // High pH
+    if (ph > 5.5) {
+      const notif = new NotificationHistory()
+      notif.message = `High pH Detected (Reading: ${ph})`
+      notif.body = `
+      Your soil pH is too high (above 5.5), which can limit nutrient availability and affect plant growth.
+  
+      To manage this situation:
+      - Apply acidifiers to lower the soil pH
+      - Regularly monitor pH levels
+  
+      Maintain an ideal pH range for healthy crops!
+      `
+      notif.sensorHistoryId = sensorHistory.id
+      notif.read = false
+      notif.updatedAt = sensorHistory.updatedAt
+      notif.createdAt = sensorHistory.createdAt
+      notifications.push(notif)
+    }
+  
+    // Low pH
+    if (ph < 2) {
+      const notif = new NotificationHistory()
+      notif.message = `Low pH Detected (Reading: ${ph})`
+      notif.body = `
+      Your soil pH is too low, which can cause nutrient deficiencies and impact plant health.
+  
+      To manage this situation:
+      - Apply lime or compost to raise the soil pH
+      - Regularly monitor pH levels
+  
+      Protect your crops by ensuring proper soil pH!
+      `
+      notif.sensorHistoryId = sensorHistory.id
+      notif.read = false
+      notif.updatedAt = sensorHistory.updatedAt
+      notif.createdAt = sensorHistory.createdAt
+      notifications.push(notif)
+    }
+  
+    // Save all generated notifications
+    await Promise.all(notifications.map(notif => notif.save()))
+  }
+  
+
+  // async resetNotifications() {
+  //   const {request, response} = this.ctx
+  //   let sensorHistory = await SensorsHistory.all()
+
+  //   if(sensorHistory){
+  //     await Promise.all(sensorHistory.map(async (item, index) => {
+  //       let temperature = Number.parseFloat(item.temperature + "")
+  //       let ph = Number.parseFloat(item.ph + "")
+  //       let humidity = Number.parseFloat(item.humidity + "")
+  //       let recordNotif = false;
+  //       let notif = new NotificationHistory()
+  //       notif.message = "";
+  //       notif.body = "";
+
+  //       if(humidity > 50){
+  //         notif.message = ""
+  //         notif.body = `
+  //         Your soil nvironment is experiencing high humidity levels which increases the risk of Fusarium wilt development\n
+  //         To manage this situation, here's what you should do:\n\n
+
+  //         - Improve drainage to prevent waterlogging\n
+  //         - Increase ventilation in the area to reduce humidity \n\n
+  //         Maintain balanced humidity to protect your plants!
+  //         `
+  //       }
+  //       if(humidity < 10){
+  //         notif.message = ""
+  //         notif.body = `
+          
+  //         `
+  //       }
+  //       if(temperature > 28 ){
+  //         notif.message += `Temperature is above the 25'C (reading ${temperature}'C. ) Fusarium wilt may be in development. ` 
+  //         notif.body = `
+  //         Your soil temperature is currently above 28'C. This temperature range supports Fusarium wilt development.\n
+  //         To maange this situation, here's what you should do:\n
+
+  //         - Improve ventilation in the area.\n
+  //         - Apply mulching to maintain stable soil conditions\n
+  //         - Provide shade to reduce soil temperature further \n\n
+
+  //         Take action to prevent pathogen growth!
+  //         `
+  //         recordNotif = true;
+          
+  //       }
+  //       if(temperature < 17){
+  //         notif.message += `Temperature is less than 17'C (reading ${temperature}'C. ) Plant health may be impacted.` 
+  //         notif.body = 
+  //         `Your soil temperature is currently below 17'C which inhibits Fusarium wilf development, but may impact plant health. 
+  //         \n To manage this situation, here's what you should do:
+  //         \n
+  //         - Increase sunlight exposure when possible.\n 
+  //         - Apply warm mulch to stabilize the soil temperature \n
+  //         \n Keep your soil within the optimal range for plant growth!
+  //         `
+  //         recordNotif = true;
+  //       }
+  //       if (ph > 5.0) {
+  //         recordNotif = true;
+  //         notif.message += `PH levels are within 5.0 - 5.5 (reading ${ph}).` 
+  //         notif.body = `
+  //         Your soil PH is too high (5.0 - 5.5) which can limit nutrient availability and affect plant growth. \n
+  //         To manage this situation, here's what you should do: \n
+  //         \n
+  //         - Apply acidifiers to lower the soil pH.\n
+  //         - Regularly monitor the PH levels to maintain a balanced range.\n
+  //         \n
+  //         Keep the PH within the ideal range for healthy crops!
+  //         `
+  //       }
+  //       if (ph < 2) {
+  //         recordNotif = true;
+  //         notif.message += `PH levels are too low. (reading ${ph}).` 
+  //         notif.body = `
+  //         Your soil PH is too low, whch can lead to nutrient deficiencies and impact plant health.\n
+  //         To manage this situation, here's what you should do:\n
+  //         \n
+  //         - Apply lime or compost to increase soiul PH.\n
+  //         - Regularly monitor PH levels to maintain balance\n\n
+  //         Protect your crops by ensuring proper soil PH!
+  //         `
+  //       }
+  //       if (humidity > 50){
+  //         recordNotif = true;
+  //         notif.message += `Relative Humidity is high. (reading ${humidity}% ) Fusarium wilt may be in development. ` 
+  //       }
+
+  //       if(recordNotif){
+          
+  //         notif.sensorHistoryId = item.id
+  //         notif.read = false;
+  //         notif.updatedAt = item.updatedAt;
+  //         notif.createdAt = item.createdAt;
+  //         await notif.save()
+  //       }
+
+  //       return true
+  //     }))
+
+  //     return response.status(200).json({success:true})
+
+  //   }
+  // }
+
+  // //util 
+  // async saveNotification(){
+
+  // }
+
+  // async interpretData(){
+
+  // }
 
   async readNotification(){
     const {request, response} = this.ctx
