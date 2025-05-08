@@ -155,13 +155,10 @@ export default class SensorService {
       const notif = new NotificationHistory()
       notif.message = `High Humidity Detected (Reading: ${humidity}%)`
       notif.body = `
-      Your soil environment is experiencing high humidity levels which increases the risk of Fusarium wilt development.
-  
+       Oh no! The humidity is too high; This could favor Fusarium pathogen activity.
+
       To manage this situation:
-      - Improve drainage to prevent waterlogging
-      - Increase ventilation in the area to reduce humidity
-  
-      Maintain balanced humidity to protect your plants!
+      - Increase field ventilation by pruning and spacing; MOnitor humidity to avoid prolonged wet conditions.
       `
       notif.sensorHistoryId = sensorHistory.id
       notif.read = false
@@ -175,13 +172,10 @@ export default class SensorService {
       const notif = new NotificationHistory()
       notif.message = `Low Humidity Detected (Reading: ${humidity}%)`
       notif.body = `
-      Your soil environment has very low humidity, which may stress plants.
-  
-      To manage this situation:
-      - Increase watering frequency
-      - Apply mulch to retain soil moisture
-  
-      Help your plants thrive by maintaining optimal humidity!
+     Caution: Low humidity detected. Plants may experience water loss stress.
+
+     To manage this situation:
+     - improve field microclimate by adding windbreaks or irrigation misting.
       `
       notif.sensorHistoryId = sensorHistory.id
       notif.read = false
@@ -195,15 +189,12 @@ export default class SensorService {
       const notif = new NotificationHistory()
       notif.message = `High Temperature Detected (Reading: ${temperature}°C)`
       notif.body = `
-      Your soil temperature is currently above 28°C. This temperature supports Fusarium wilt development.
+      Oh no! The temperature is too high for  bana soil which could promote fusarium wilt!
   
       To manage this situation:
-      - Improve ventilation in the area
-      - Apply mulching to stabilize soil conditions
-      - Provide shade to reduce soil temperature
-  
-      Take action to prevent pathogen growth!
+      - Apply mulch and install shade structures to reduce soil temperature. Monitor temperature daily.
       `
+
       notif.sensorHistoryId = sensorHistory.id
       notif.read = false
       notif.updatedAt = sensorHistory.updatedAt
@@ -216,13 +207,10 @@ export default class SensorService {
       const notif = new NotificationHistory()
       notif.message = `Low Temperature Detected (Reading: ${temperature}°C)`
       notif.body = `
-      Your soil temperature is currently below 17°C which inhibits Fusarium wilt but may impact plant health.
-  
+      Warning! The soil temperature is too low; Banana growth my be stressed.
+
       To manage this situation:
-      - Increase sunlight exposure when possible
-      - Apply warm mulch to stabilize soil temperature
-  
-      Keep your soil within the optimal range for plant growth!
+      - Use mulch to retain warmth and reduce heat loss; Avoid planting in low-temperature seasons.
       `
       notif.sensorHistoryId = sensorHistory.id
       notif.read = false
@@ -236,13 +224,10 @@ export default class SensorService {
       const notif = new NotificationHistory()
       notif.message = `High pH Detected (Reading: ${ph})`
       notif.body = `
-      Your soil pH is too high (above 5.5), which can limit nutrient availability and affect plant growth.
-  
+      Warning! Soil PH is too high; This may affect nutrient availability and disease dynamics.
+
       To manage this situation:
-      - Apply acidifiers to lower the soil pH
-      - Regularly monitor pH levels
-  
-      Maintain an ideal pH range for healthy crops!
+      - Add Acidifying agents or organic matter to lower soil PH gradually.
       `
       notif.sensorHistoryId = sensorHistory.id
       notif.read = false
@@ -256,13 +241,10 @@ export default class SensorService {
       const notif = new NotificationHistory()
       notif.message = `Low pH Detected (Reading: ${ph})`
       notif.body = `
-      Your soil pH is too low, which can cause nutrient deficiencies and impact plant health.
-  
+      Alert! Soil PH is too low; Acidic soils favor Fusarium wilt development.
+
       To manage this situation:
-      - Apply lime or compost to raise the soil pH
-      - Regularly monitor pH levels
-  
-      Protect your crops by ensuring proper soil pH!
+      - Apply lime to raise soil PH closer to neutral; Avoid ammonium based fertilizers.
       `
       notif.sensorHistoryId = sensorHistory.id
       notif.read = false
